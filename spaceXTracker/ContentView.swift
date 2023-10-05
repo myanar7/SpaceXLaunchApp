@@ -9,30 +9,36 @@ import SwiftUI
 
 struct ContentView: View {
     @State var patchString: URL?
+    @State var name: String = "Name not available"
     var model : SpaceXLaunchInfo?
     var body: some View {
-        VStack {
-            if let imageURL = patchString {
-                        AsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        } placeholder: {
-                            ProgressView()
-                        }
-                    } else {
-                        Text("Image not available")
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            VStack {
+                if let imageURL = patchString {
+                    AsyncImage(url: imageURL) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    } placeholder: {
+                        ProgressView()
                     }
-            Text("Hello, world!")
-                .onTapGesture {
-                    Service.shared.request { model in
-                        let urlString = model.links.patch.small
-                        patchString = URL(string: urlString)
-                    }
+                } else {
+                    Text("Image not available")
                 }
+                Text(name)
+            }
+            .padding()
+            .foregroundColor(.white)
+            .onAppear {
+                Service.shared.request { model in
+                    let urlString = model.links.patch.small
+                    patchString = URL(string: urlString)
+                    name = model.name
+                }
+            }
         }
-        .padding()
-        
     }
     
     func serviceHandler(response: SpaceXLaunchInfo) {
