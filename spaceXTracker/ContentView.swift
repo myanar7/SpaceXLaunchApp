@@ -8,14 +8,38 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var patchString: URL?
+    var model : SpaceXLaunchInfo?
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
+            if let imageURL = patchString {
+                        AsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                    } else {
+                        Text("Image not available")
+                    }
             Text("Hello, world!")
+                .onTapGesture {
+                    Service.shared.request { model in
+                        let urlString = model.links.patch.small
+                        patchString = URL(string: urlString)
+                    }
+                }
         }
         .padding()
+        
+    }
+    
+    func serviceHandler(response: SpaceXLaunchInfo) {
+        print(response.name)
+        print(response.links.patch)
+        print(response.details ?? "")
+        print(response.date_utc)
     }
 }
 
